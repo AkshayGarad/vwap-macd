@@ -1,0 +1,30 @@
+//@version=4
+study(title="VWAP MACD", shorttitle="VWAP MACD", format=format.price, precision=4, overlay=true)
+
+//Input
+len = input(12, minval=1, title="MACD Length")
+src = input(hlc3, title="MACD Source")
+
+//VWAP
+vwap1 = sum(volume*close)/sum(volume)
+vwap2 = vwap1 == vwap1[1] ? vwap2[1] : vwap1
+
+//MACD
+fastMA = ema(src, 12)
+slowMA = ema(src, 26)
+macd = fastMA - slowMA
+signal = ema(macd, 9)
+
+//VWAP MACD
+vwap_macd = macd - vwap2
+
+//Plotting
+plot(macd, color=color.blue, title="MACD")
+plot(signal, color=color.orange, title="Signal")
+plot(vwap_macd, color=color.green, title="VWAP MACD")
+
+hline(0, title="Zero Line", linestyle=hline.style_dotted)
+
+//Alert
+alertcondition(crossover(macd, signal), title="MACD Bullish Cross", message="MACD Bullish Cross!")
+alertcondition(crossunder(macd, signal), title="MACD Bearish Cross", message="MACD Bearish Cross!")
